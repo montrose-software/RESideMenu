@@ -171,6 +171,7 @@
 
             [self statusBarNeedsAppearanceUpdate];
             [self updateContentViewShadow];
+            [self updateContentButton];
             
             if (self.visible) {
                 [self addContentViewControllerMotionEffects];
@@ -278,7 +279,6 @@
     self.leftMenuViewController.view.hidden = NO;
     self.rightMenuViewController.view.hidden = YES;
     [self.view.window endEditing:YES];
-    [self addContentButton];
     [self updateContentViewShadow];
     [self resetContentViewScale];
     
@@ -311,6 +311,7 @@
         
         self.visible = YES;
         self.leftMenuVisible = YES;
+        [self addContentButton];
     }];
     
     [self statusBarNeedsAppearanceUpdate];
@@ -325,7 +326,6 @@
     self.leftMenuViewController.view.hidden = YES;
     self.rightMenuViewController.view.hidden = NO;
     [self.view.window endEditing:YES];
-    [self addContentButton];
     [self updateContentViewShadow];
     [self resetContentViewScale];
     
@@ -352,6 +352,9 @@
         
         self.visible = !(self.contentViewContainer.frame.size.width == self.view.bounds.size.width && self.contentViewContainer.frame.size.height == self.view.bounds.size.height && self.contentViewContainer.frame.origin.x == 0 && self.contentViewContainer.frame.origin.y == 0);
         self.rightMenuVisible = self.visible;
+        if (self.visible) {
+            [self addContentButton];
+        }
         [[UIApplication sharedApplication] endIgnoringInteractionEvents];
         [self addContentViewControllerMotionEffects];
     }];
@@ -433,13 +436,16 @@
 
 - (void)addContentButton
 {
-    if (self.contentButton.superview)
-        return;
-
+    [self.contentButton removeFromSuperview];
     self.contentButton.autoresizingMask = UIViewAutoresizingNone;
-    self.contentButton.frame = self.contentViewContainer.bounds;
-    self.contentButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [self.contentViewContainer addSubview:self.contentButton];
+    self.contentButton.frame = self.contentViewContainer.frame;
+    [self.view addSubview:self.contentButton];
+}
+
+- (void)updateContentButton
+{
+    if (self.contentButton.superview)
+        [self addContentButton];
 }
 
 - (void)statusBarNeedsAppearanceUpdate
@@ -572,7 +578,6 @@
             self.backgroundImageView.frame = self.view.bounds;
         }
         self.menuViewContainer.frame = self.view.bounds;
-        [self addContentButton];
         [self.view.window endEditing:YES];
         self.didNotifyDelegate = NO;
     }
@@ -730,10 +735,12 @@
     [self.contentViewController didMoveToParentViewController:self];
     
     [self updateContentViewShadow];
+    [self updateContentButton];
     
     if (self.visible) {
         [self addContentViewControllerMotionEffects];
     }
+    [self.view bringSubviewToFront:self.menuViewContainer];
 }
 
 - (void)setLeftMenuViewController:(UIViewController *)leftMenuViewController
@@ -752,7 +759,6 @@
     [self.leftMenuViewController didMoveToParentViewController:self];
     
     [self addMenuViewControllerMotionEffects];
-    [self.view bringSubviewToFront:self.contentViewContainer];
 }
 
 - (void)setRightMenuViewController:(UIViewController *)rightMenuViewController
@@ -771,7 +777,6 @@
     [self.rightMenuViewController didMoveToParentViewController:self];
     
     [self addMenuViewControllerMotionEffects];
-    [self.view bringSubviewToFront:self.contentViewContainer];
 }
 
 #pragma mark -
@@ -810,6 +815,7 @@
     }
     
     [self updateContentViewShadow];
+    [self updateContentButton];
 }
 
 #pragma mark -
